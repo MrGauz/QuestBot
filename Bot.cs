@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Device.Location;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -11,16 +10,17 @@ using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
 
-namespace eugenebot2021
+namespace QuestBot
 {
     class Bot
     {
-        private static ITelegramBotClient BotClient;
+        private static ITelegramBotClient _botClient;
 
         // Admins' Telegram IDs
-        public static readonly long[] Admins = {
-             1, // GAUZ_ID
-             2, // DANI_ID
+        public static readonly long[] Admins =
+        {
+            1, // GAUZ_ID
+            2, // DANI_ID
         };
 
         // B-Day princess's Telegram ID
@@ -28,21 +28,22 @@ namespace eugenebot2021
 
         public static void Initialize()
         {
-            BotClient = new TelegramBotClient("<token>");
+            _botClient = new TelegramBotClient("<token>");
 
             using var cancellationTokenSource = new CancellationTokenSource();
 
             GreetAdmins();
 
-            BotClient.StartReceiving(new DefaultUpdateHandler(HandleUpdateAsync, HandleErrorAsync),
-                               cancellationTokenSource.Token);
+            _botClient.StartReceiving(new DefaultUpdateHandler(HandleUpdateAsync, HandleErrorAsync),
+                cancellationTokenSource.Token);
         }
 
         #region Sending
-        public static void GreetAdmins()
+
+        private static void GreetAdmins()
         {
             Console.WriteLine($"{DateTime.Now:HH:mm:ss} - Greeting admins...");
-            foreach (long admin in Admins)
+            foreach (var admin in Admins)
             {
                 SendAdminUsage(admin);
 
@@ -59,16 +60,16 @@ namespace eugenebot2021
                     ResizeKeyboard = true
                 };
 
-                BotClient.SendTextMessageAsync(
+                _botClient.SendTextMessageAsync(
                     chatId: admin,
                     text: "Здарова, админ нашей залупы",
                     replyMarkup: replyKeyboardMarkup);
             }
         }
 
-        public static void SendAdminUsage(long admin)
+        private static void SendAdminUsage(long admin)
         {
-            var usage = @"
+            const string usage = @"
 Usage:
   <code>/send message_name_as_in_json</code>
   <code>/forward text you want to send to Eugene</code>
@@ -83,29 +84,6 @@ Keyboard:
             SendMessage(usage, admin);
         }
 
-        public static void UpdateQuestsStatusAsync()
-        {
-            string progress_filled = "\u25a0";
-            string progress_empty = "\u25a1";
-            string cross = "\u2716\ufe0f";
-            string star = "\u2b50\ufe0f";
-            var message = Quest.Messages.Single(m => m.Name == "quests_progress_status").Text;
-
-            message = message.Replace($"[main_progress]", Quest.MainQuestProgress.ToString());
-            string progress = string.Concat(Enumerable.Repeat(progress_filled, Quest.MainQuestProgress / 4)) +
-                    string.Concat(Enumerable.Repeat(progress_empty, 25 - Quest.MainQuestProgress / 4));
-            message = message.Replace($"[main_progress_bar]", progress);
-
-            foreach (KeyValuePair<string, int[]> sideSideQuest in Quest.SideSideQuestsProgress)
-            {
-                string status = string.Concat(Enumerable.Repeat(star, sideSideQuest.Value[0])) +
-                    string.Concat(Enumerable.Repeat(cross, sideSideQuest.Value[1] - sideSideQuest.Value[0]));
-                message = message.Replace($"[{sideSideQuest.Key}]", status);
-            }
-
-            SendMessage(message: message, pin: true);
-        }
-
         public static async void SendMessage(TgMessage message, long to = EUGENE_ID, bool pin = false)
         {
             Message sentMessage = new();
@@ -113,8 +91,8 @@ Keyboard:
             switch (message.Type)
             {
                 case TgMessageType.Geotag:
-                    await BotClient.SendChatActionAsync(to, ChatAction.FindLocation);
-                    sentMessage = await BotClient.SendLocationAsync(
+                    await _botClient.SendChatActionAsync(to, ChatAction.FindLocation);
+                    sentMessage = await _botClient.SendLocationAsync(
                         chatId: to,
                         latitude: (float)message.Geotag.Latitude,
                         longitude: (float)message.Geotag.Longitude,
@@ -122,44 +100,47 @@ Keyboard:
                     );
                     break;
                 case TgMessageType.Image:
-                    await BotClient.SendChatActionAsync(to, ChatAction.UploadPhoto);
+                    await _botClient.SendChatActionAsync(to, ChatAction.UploadPhoto);
                     using (var stream = System.IO.File.OpenRead(message.Image))
                     {
-                        sentMessage = await BotClient.SendPhotoAsync(
-                        chatId: to,
-                        photo: stream,
-                        caption: message.Text,
-                        replyMarkup: message.KeyboardMarkup
+                        sentMessage = await _botClient.SendPhotoAsync(
+                            chatId: to,
+                            photo: stream,
+                            caption: message.Text,
+                            replyMarkup: message.KeyboardMarkup
                         );
                     }
+
                     break;
                 case TgMessageType.Sticker:
-                    await BotClient.SendChatActionAsync(to, ChatAction.Typing);
+                    await _botClient.SendChatActionAsync(to, ChatAction.Typing);
                     using (var stream = System.IO.File.OpenRead(message.Sticker))
                     {
-                        sentMessage = await BotClient.SendStickerAsync(
-                        chatId: to,
-                        sticker: stream,
-                        replyMarkup: message.KeyboardMarkup
+                        sentMessage = await _botClient.SendStickerAsync(
+                            chatId: to,
+                            sticker: stream,
+                            replyMarkup: message.KeyboardMarkup
                         );
                     }
+
                     break;
                 case TgMessageType.Voice:
-                    await BotClient.SendChatActionAsync(to, ChatAction.RecordVoice);
+                    await _botClient.SendChatActionAsync(to, ChatAction.RecordVoice);
                     using (var stream = System.IO.File.OpenRead(message.Voice))
                     {
-                        sentMessage = await BotClient.SendVoiceAsync(
-                        chatId: to,
-                        voice: stream,
-                        replyMarkup: message.KeyboardMarkup
+                        sentMessage = await _botClient.SendVoiceAsync(
+                            chatId: to,
+                            voice: stream,
+                            replyMarkup: message.KeyboardMarkup
                         );
                     }
+
                     break;
                 case TgMessageType.Video:
-                    await BotClient.SendChatActionAsync(to, ChatAction.UploadVideo);
+                    await _botClient.SendChatActionAsync(to, ChatAction.UploadVideo);
                     using (var stream = System.IO.File.OpenRead(message.Video))
                     {
-                        sentMessage = await BotClient.SendVideoAsync(
+                        sentMessage = await _botClient.SendVideoAsync(
                             chatId: EUGENE_ID,
                             video: stream,
                             caption: message.Text,
@@ -167,10 +148,11 @@ Keyboard:
                             replyMarkup: message.KeyboardMarkup
                         );
                     }
+
                     break;
                 case TgMessageType.Quiz:
-                    await BotClient.SendChatActionAsync(to, ChatAction.Typing);
-                    sentMessage = await BotClient.SendPollAsync(
+                    await _botClient.SendChatActionAsync(to, ChatAction.Typing);
+                    sentMessage = await _botClient.SendPollAsync(
                         chatId: to,
                         question: message.Quiz.Question,
                         options: message.Quiz.Options,
@@ -181,42 +163,47 @@ Keyboard:
                     message.Quiz.PollId = sentMessage.Poll.Id;
                     break;
                 case TgMessageType.Buttons:
-                    await BotClient.SendChatActionAsync(to, ChatAction.Typing);
-                    sentMessage = await BotClient.SendTextMessageAsync(
+                    await _botClient.SendChatActionAsync(to, ChatAction.Typing);
+                    sentMessage = await _botClient.SendTextMessageAsync(
                         chatId: to,
                         text: message.Text,
                         parseMode: ParseMode.Html,
                         replyMarkup: message.InlineKeyboard);
                     break;
                 case TgMessageType.Text:
-                    await BotClient.SendChatActionAsync(to, ChatAction.Typing);
-                    sentMessage = await BotClient.SendTextMessageAsync(
+                    await _botClient.SendChatActionAsync(to, ChatAction.Typing);
+                    sentMessage = await _botClient.SendTextMessageAsync(
                         chatId: to,
                         text: message.Text,
                         parseMode: ParseMode.Html,
                         replyMarkup: message.KeyboardMarkup
                     );
                     break;
+                default:
+                    Console.WriteLine(
+                        $"{DateTime.Now:HH:mm:ss} - ERROR - Trying to send unknown message type: {message.Type}");
+                    return;
             }
+
             Console.WriteLine($"{DateTime.Now:HH:mm:ss} - Sent \"{message.Name}\"");
 
             // Pinning messages
             if (pin)
             {
-                await BotClient.UnpinAllChatMessages(EUGENE_ID);
-                await BotClient.PinChatMessageAsync(EUGENE_ID, sentMessage.MessageId, true);
+                await _botClient.UnpinAllChatMessages(EUGENE_ID);
+                await _botClient.PinChatMessageAsync(EUGENE_ID, sentMessage.MessageId, true);
             }
 
             // Wiretap a.k.a. "Babysitting"
             if (to == EUGENE_ID)
             {
-                foreach (long admin in Admins)
+                foreach (var admin in Admins)
                 {
-                    await BotClient.ForwardMessageAsync(
+                    await _botClient.ForwardMessageAsync(
                         chatId: admin,
                         fromChatId: sentMessage.Chat.Id,
                         messageId: sentMessage.MessageId
-                        );
+                    );
                 }
             }
 
@@ -230,9 +217,11 @@ Keyboard:
 
         public static void SendMessage(string message, long to = EUGENE_ID, bool pin = false)
         {
-            TgMessage tgMessage = new();
-            tgMessage.Name = "manual_message";
-            tgMessage.Text = message;
+            TgMessage tgMessage = new()
+            {
+                Name = "manual_message",
+                Text = message
+            };
             SendMessage(tgMessage, to, pin);
         }
 
@@ -240,22 +229,27 @@ Keyboard:
         {
             SendMessage(Quest.Messages.Single(m => m.Name == messageName));
         }
+
         #endregion
 
         #region Receiving
-        private static Task HandleErrorAsync(ITelegramBotClient bot, Exception exception, CancellationToken cancellationToken)
+
+        private static Task HandleErrorAsync(ITelegramBotClient bot, Exception exception,
+            CancellationToken cancellationToken)
         {
-            var ErrorMessage = exception switch
+            var errorMessage = exception switch
             {
-                ApiRequestException apiRequestException => $"Telegram API Error:\n[{apiRequestException.ErrorCode}]\n{apiRequestException.Message}",
+                ApiRequestException apiRequestException =>
+                    $"Telegram API Error:\n[{apiRequestException.ErrorCode}]\n{apiRequestException.Message}",
                 _ => exception.ToString()
             };
 
-            Console.WriteLine($"{DateTime.Now:HH:mm:ss} - {ErrorMessage}");
+            Console.WriteLine($"{DateTime.Now:HH:mm:ss} - {errorMessage}");
             return Task.CompletedTask;
         }
 
-        private static async Task HandleUpdateAsync(ITelegramBotClient bot, Update update, CancellationToken cancellationToken)
+        private static async Task HandleUpdateAsync(ITelegramBotClient bot, Update update,
+            CancellationToken cancellationToken)
         {
             try
             {
@@ -275,7 +269,7 @@ Keyboard:
             }
             catch (Exception e)
             {
-                await HandleErrorAsync(BotClient, e, cancellationToken);
+                await HandleErrorAsync(_botClient, e, cancellationToken);
             }
         }
 
@@ -286,13 +280,13 @@ Keyboard:
             // Another wiretap
             if (message.From.Id == EUGENE_ID)
             {
-                foreach (long admin in Admins)
+                foreach (var admin in Admins)
                 {
-                    BotClient.ForwardMessageAsync(
+                    _botClient.ForwardMessageAsync(
                         chatId: admin,
                         fromChatId: message.Chat.Id,
                         messageId: message.MessageId
-                        );
+                    );
                 }
             }
 
@@ -321,16 +315,6 @@ Keyboard:
                 {
                     SendMessage(message.Text[9..]);
                 }
-                else if (message.Text.StartsWith("/progress"))
-                {
-                    Quest.MainQuestProgress = int.Parse(message.Text[10..]);
-                    UpdateQuestsStatusAsync();
-                }
-                else if (message.Text.StartsWith("квест"))
-                {
-                    Quest.SideSideQuestsProgress[message.Text[6..]][0]++;
-                    UpdateQuestsStatusAsync();
-                }
                 else if (message.Text.StartsWith("муз квиз раунд 1"))
                 {
                     SendMessage(Quest.Messages.Single(m => m.Name == "quiz_1_welcome"));
@@ -350,7 +334,7 @@ Keyboard:
             }
 
             // Handling codewords
-            if (Quest.Messages.Where(m => m.SendOnText == message.Text).Any())
+            if (Quest.Messages.Any(m => m.SendOnText == message.Text))
             {
                 SendMessage(Quest.Messages.Single(m => m.SendOnText == message.Text));
             }
@@ -358,8 +342,9 @@ Keyboard:
 
         private static void BotOnLocationReceived(Message message)
         {
-            var eugeneCoordinate = new GeoCoordinate(message.Location.Latitude, message.Location.Longitude);
-            foreach (TgMessage tgMessage in Quest.Messages.Where(m => m.SendAtLocation != null))
+            var eugeneCoordinate =
+                new GeoCoordinate.NetStandard2.GeoCoordinate(message.Location.Latitude, message.Location.Longitude);
+            foreach (var tgMessage in Quest.Messages.Where(m => m.SendAtLocation != null))
             {
                 var distanceInMeters = (int)eugeneCoordinate.GetDistanceTo(tgMessage.SendAtLocation.GetGeoCoordinate);
                 if (distanceInMeters < 100)
@@ -378,11 +363,12 @@ Keyboard:
 
         private static void BotOnPollAnswerReceived(Poll poll)
         {
-            foreach (TgMessage message in Quest.Messages.Where(m => m.Quiz != null && m.Quiz.PollId == poll.Id))
+            foreach (var message in Quest.Messages.Where(m => m.Quiz != null && m.Quiz.PollId == poll.Id))
             {
                 SendMessage(Quest.Messages.Single(m => m.Name == message.Quiz.ReplyName));
             }
         }
+
         #endregion
     }
 }

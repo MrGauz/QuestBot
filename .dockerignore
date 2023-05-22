@@ -1,0 +1,9 @@
+.git/
+.idea/
+.vs/
+bin/
+obj/
+*.example
+*.md
+*.user
+.gitignore

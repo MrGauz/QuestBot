@@ -1,4 +1,4 @@
-# 🤖 EugeneBot2021
+# 🤖 QuestBot
 
 A C#-based Telegram bot for interactive communication with a soulless machine.
 
@@ -11,7 +11,7 @@ The bot can send messages to the user in two ways: automatically and manually.
 
 ## Preparation
 - Clone project from GitHub:
-	- ``git clone https://github.com/MrGauz/eugenebot2021.git``;
+	- ``git clone https://github.com/MrGauz/QuestBot.git``;
 - In ``Bot.cs``, fill in the Bot token and Telegram IDs;
 - Rename ``messages.json.example`` to ``messages.json`` and fill out the file with the messages you would want the user to receive;
 - Launch the project and be amazed.
@@ -25,5 +25,12 @@ The bot can send messages to the user in two ways: automatically and manually.
 - ``nextAfter`` triggers the message after a time given in seconds;
 	- ``nextName`` defines the ID of the message that needs to be sent after.
 
+## Production
+- Copy the project to the server
+- Install ``docker`` and ``docker-compose``
+- ``docker rm quest_bot && docker image rm quest_bot && docker-compose build && docker-compose up -d && docker-compose ps && docker-compose logs -f``
+- Run the quest
+- ``docker-compose down``
+
 ## License
-You can obviously use and re-use the code in any way that's granted by the [MIT License](https://github.com/MrGauz/eugenebot2021/blob/master/LICENSE.md).
+You can obviously use and re-use the code in any way that's granted by the [CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/).

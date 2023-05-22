@@ -1,42 +1,24 @@
 ﻿using System.Collections.Generic;
-using System.Device.Location;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Telegram.Bot.Types.ReplyMarkups;
 
-namespace eugenebot2021
+namespace QuestBot
 {
     class Quest
     {
         public static readonly List<TgMessage> Messages;
-        public static int MainQuestProgress;
-        public static Dictionary<string, int[]> SideSideQuestsProgress;
 
         static Quest()
         {
             // Load messages from json
-#if DEBUG
-            string jsonString = File.ReadAllText("messages_test.json");
-#else
-            string jsonString = File.ReadAllText("messages.json");
-#endif
+            var jsonString = File.ReadAllText("messages.json");
+
             JsonSerializerOptions options = new();
             options.PropertyNameCaseInsensitive = true;
             Messages = JsonSerializer.Deserialize<List<TgMessage>>(jsonString, options);
-
-            // Setup quests progress
-            MainQuestProgress = 0;
-            SideSideQuestsProgress = new Dictionary<string, int[]>
-            {
-                ["ua_artist"] = new int[2] { 0, 1 },
-                ["alice_cooper"] = new int[2] { 0, 1 },
-                ["burp"] = new int[2] { 0, 2 },
-                ["memes"] = new int[2] { 0, 5 },
-                ["motocycles"] = new int[2] { 0, 7 },
-                ["welldone"] = new int[2] { 0, 1 }
-            };
         }
     }
 
@@ -57,17 +39,16 @@ namespace eugenebot2021
         public string Text { get; set; }
         public string CallbackData { get; set; }
     }
+
     class Location
     {
         public double Latitude { get; set; }
         public double Longitude { get; set; }
+
         [JsonIgnore]
-        public GeoCoordinate GetGeoCoordinate
+        public GeoCoordinate.NetStandard2.GeoCoordinate GetGeoCoordinate
         {
-            get
-            {
-                return new GeoCoordinate(Latitude, Longitude);
-            }
+            get { return new GeoCoordinate.NetStandard2.GeoCoordinate(Latitude, Longitude); }
         }
     }
 
@@ -83,8 +64,7 @@ namespace eugenebot2021
         public string[] Options { get; set; }
         public int CorrectOptionId { get; set; }
         public string ReplyName { get; set; }
-        [JsonIgnore]
-        public string PollId { get; set; } = null;
+        [JsonIgnore] public string PollId { get; set; } = null;
     }
 
     class TgMessage
@@ -104,6 +84,7 @@ namespace eugenebot2021
         public Quiz Quiz { get; set; } = null;
         public string[] Keyboard { get; set; } = null;
         public Button[] Buttons { get; set; } = null;
+
         [JsonIgnore]
         public InlineKeyboardMarkup KeyboardMarkup
         {
@@ -113,15 +94,19 @@ namespace eugenebot2021
                 {
                     return null;
                 }
+
                 var buttons = new List<InlineKeyboardButton[]>();
-                for (int i = 0; i < Keyboard.Length; i++)
+                for (var i = 0; i < Keyboard.Length; i++)
                 {
-                    string callbackData = $"{Name}_{i}";
-                    buttons.Add(new InlineKeyboardButton[] { InlineKeyboardButton.WithCallbackData(Keyboard[i], callbackData) });
+                    var callbackData = $"{Name}_{i}";
+                    buttons.Add(new InlineKeyboardButton[]
+                        { InlineKeyboardButton.WithCallbackData(Keyboard[i], callbackData) });
                 }
+
                 return new InlineKeyboardMarkup(buttons);
             }
         }
+
         [JsonIgnore]
         public InlineKeyboardMarkup InlineKeyboard
         {
@@ -132,15 +117,13 @@ namespace eugenebot2021
                     return null;
                 }
 
-                var buttons = new List<InlineKeyboardButton[]>();
+                var buttons = Buttons.Select(button => new InlineKeyboardButton[]
+                    { InlineKeyboardButton.WithCallbackData(button.Text, button.CallbackData) }).ToList();
 
-                foreach (Button button in Buttons)
-                {
-                    buttons.Add(new InlineKeyboardButton[] { InlineKeyboardButton.WithCallbackData(button.Text, button.CallbackData) });
-                }
                 return new InlineKeyboardMarkup(buttons);
             }
         }
+
         [JsonIgnore]
         public TgMessageType Type
         {
@@ -150,44 +133,47 @@ namespace eugenebot2021
                 {
                     return TgMessageType.Geotag;
                 }
+
                 if (Image != null)
                 {
                     return TgMessageType.Image;
                 }
+
                 if (Sticker != null)
                 {
                     return TgMessageType.Sticker;
                 }
+
                 if (Voice != null)
                 {
                     return TgMessageType.Voice;
                 }
+
                 if (Video != null)
                 {
                     return TgMessageType.Video;
                 }
+
                 if (Quiz != null)
                 {
                     return TgMessageType.Quiz;
                 }
+
                 if (Buttons != null)
                 {
                     return TgMessageType.Buttons;
                 }
+
                 return TgMessageType.Text;
             }
         }
+
         [JsonIgnore]
         public TgMessage NextMessage
         {
             get
             {
-                if (NextName == null)
-                {
-                    return null;
-                }
-
-                return Quest.Messages.Single(m => m.Name == NextName);
+                return NextName == null ? null : Quest.Messages.Single(m => m.Name == NextName);
             }
         }
     }

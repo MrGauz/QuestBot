@@ -1,0 +1,9 @@
+version: "3.3"
+
+services:
+  quest_bot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: quest_bot
+    container_name: quest_bot
