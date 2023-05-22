@@ -49,30 +49,22 @@ namespace QuestBot
             foreach (var admin in Config.AdminChatIds)
             {
                 SendAdminUsage(admin);
-
-                _botClient.SendTextMessageAsync(
-                    chatId: admin,
-                    text: "Здарова, админ нашей залупы",
-                    replyMarkup: ReplyKeyboardForAdmins);
             }
         }
 
         private static void SendAdminUsage(long admin)
         {
             const string usage = @"
-Usage:
-  <code>/send message_name_as_in_json</code>
-  <code>/forward text you want to send to Eugene</code>
-  <code>/progress 42</code>
-  <code>/keyboard</code> - send the keyboard again
-
-Keyboard:
-  First 2 rows for increasing side-side quests completeness
-  Next button starts the music quiz's rounds
-  Last button is for showing this message
+Использование:
+  <code>/send ID сообщения как в JSON</code>
+  <code>/forward текст для отправки Лере</code>
+  <code>/keyboard</code> - показать клавиатуру с кнопками
                 ";
 
-            SendMessage(usage, admin);
+            _botClient.SendTextMessageAsync(
+                chatId: admin,
+                text: usage,
+                replyMarkup: ReplyKeyboardForAdmins);
         }
 
         public static async void SendMessage(TgMessage message, long to = 0, bool pin = false)
@@ -210,7 +202,7 @@ Keyboard:
             // Wiretap a.k.a. "Babysitting"
             if (to == Config.BdayChatId)
             {
-                foreach (var recipient in Config.AdminChatIds.Concat(Config.ObserversChatIds))
+                foreach (var recipient in Config.AdminChatIds.Concat(Config.ObserversChatIds).ToArray())
                 {
                     await _botClient.ForwardMessageAsync(
                         chatId: recipient,
@@ -288,7 +280,7 @@ Keyboard:
             // Another wiretap
             if (message.From.Id == Config.BdayChatId)
             {
-                foreach (var admin in Config.AdminChatIds.Concat(Config.ObserversChatIds))
+                foreach (var admin in Config.AdminChatIds.Concat(Config.ObserversChatIds).ToArray())
                 {
                     _botClient.ForwardMessageAsync(
                         chatId: admin,
@@ -341,7 +333,7 @@ Keyboard:
             }
 
             // Handling codewords
-            if (Quest.Messages.Any(m => m.SendOnText == message.Text))
+            if (message.From.Id == Config.BdayChatId && Quest.Messages.Any(m => m.SendOnText == message.Text))
             {
                 SendMessage(Quest.Messages.Single(m => m.SendOnText == message.Text));
             }
@@ -349,11 +341,11 @@ Keyboard:
 
         private static void BotOnLocationReceived(Message message)
         {
-            var eugeneCoordinate =
+            var sentCoordinate =
                 new GeoCoordinate.NetStandard2.GeoCoordinate(message.Location.Latitude, message.Location.Longitude);
             foreach (var tgMessage in Quest.Messages.Where(m => m.SendAtLocation != null))
             {
-                var distanceInMeters = (int)eugeneCoordinate.GetDistanceTo(tgMessage.SendAtLocation.GetGeoCoordinate);
+                var distanceInMeters = (int)sentCoordinate.GetDistanceTo(tgMessage.SendAtLocation.GetGeoCoordinate);
                 if (distanceInMeters < 100)
                 {
                     Console.WriteLine($"{DateTime.Now:HH:mm:ss} - Location proximity {distanceInMeters} meters");
@@ -372,6 +364,15 @@ Keyboard:
         {
             foreach (var message in Quest.Messages.Where(m => m.Quiz != null && m.Quiz.PollId == poll.Id))
             {
+                foreach (var admin in Config.AdminChatIds.Concat(Config.ObserversChatIds).ToArray())
+                {
+                    _botClient.SendTextMessageAsync(
+                        chatId: admin,
+                        text:
+                        $"Выбранный ответ на вопрос \"{message.Quiz.Question}\": {poll.Options.Single(o => o.VoterCount > 0).Text}",
+                        ParseMode.Html);
+                }
+
                 SendMessage(Quest.Messages.Single(m => m.Name == message.Quiz.ReplyName));
             }
         }

@@ -25,6 +25,9 @@ The bot can send messages to the user in two ways: automatically and manually.
 - ``nextAfter`` triggers the message after a time given in seconds;
 	- ``nextName`` defines the ID of the message that needs to be sent after.
 
+## Notes
+- Voice messages (OGG) should be encoded with Opus codec to play on Apple devices;
+
 ## Production
 - Copy the project to the server
 - Install ``docker`` and ``docker-compose``

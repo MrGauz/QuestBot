@@ -15,7 +15,6 @@ namespace QuestBot
         {
             // Load messages from json
             var jsonString = File.ReadAllText("messages.json");
-
             JsonSerializerOptions options = new()
             {
                 PropertyNameCaseInsensitive = true
