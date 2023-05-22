@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
 using Newtonsoft.Json;
 
 namespace QuestBot;
@@ -24,7 +25,7 @@ public static class Config
 {
     public static string TelegramBotToken => Configs.Instance.TelegramBotToken;
     public static long BdayChatId => Configs.Instance.BdayChatId;
-    public static long[] AdminChatIds => Configs.Instance.AdminChatIds;
-    public static long[] ObserversChatIds => Configs.Instance.ObserversChatIds;
+    public static IEnumerable<long> AdminChatIds => Configs.Instance.AdminChatIds;
+    public static IEnumerable<long> ObserversChatIds => Configs.Instance.ObserversChatIds;
     public static string Locale => Configs.Locale;
 }

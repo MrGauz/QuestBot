@@ -20,9 +20,8 @@ namespace QuestBot
         private static readonly ReplyKeyboardMarkup ReplyKeyboardForAdmins = new(
             new[]
             {
-                new KeyboardButton[] { "квест ua_artist", "квест alice_cooper", "квест burp" },
-                new KeyboardButton[] { "квест memes", "квест motocycles", "квест welldone" },
-                new KeyboardButton[] { "муз квиз раунд 1", "муз квиз раунд 2", "муз квиз раунд 3" },
+                new KeyboardButton[] { "квест ua_artist", "квест alice_cooper" },
+                new KeyboardButton[] { "квест memes" },
                 new KeyboardButton[] { "Как пользоваться админкой?" },
             })
         {
@@ -69,10 +68,7 @@ namespace QuestBot
 
         public static async void SendMessage(TgMessage message, long to = 0, bool pin = false)
         {
-            if (to == 0)
-            {
-                to = Config.BdayChatId;
-            }
+            if (to == 0) to = Config.BdayChatId;
 
             Message sentMessage;
 

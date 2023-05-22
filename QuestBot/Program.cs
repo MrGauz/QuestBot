@@ -9,6 +9,7 @@ namespace QuestBot
 {
     class Program
     {
+        // TODO: add logging
         static async Task Main(string[] args)
         {
             // Fire everything up
@@ -37,6 +38,7 @@ namespace QuestBot
                 Console.WriteLine("Stopping the bot...");
                 cancellationTokenSource.Cancel();
                 eventArgs.Cancel = true;
+                JobManager.Stop();
             };
 
             await Task.Delay(-1, cancellationTokenSource.Token);
