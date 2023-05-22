@@ -5,8 +5,7 @@
 
 # Secrets and personal
 resources/*
-messages.json
 
 # Builds
-bin/
-obj/
+QuestBot/bin/
+QuestBot/obj/
