@@ -29,7 +29,9 @@ namespace QuestBot
         Text,
         Image,
         Sticker,
+        AnimatedSticker,
         Voice,
+        Audio,
         Geotag,
         Video,
         Quiz,
@@ -48,10 +50,7 @@ namespace QuestBot
         public double Longitude { get; set; }
 
         [JsonIgnore]
-        public GeoCoordinate.NetStandard2.GeoCoordinate GetGeoCoordinate
-        {
-            get { return new GeoCoordinate.NetStandard2.GeoCoordinate(Latitude, Longitude); }
-        }
+        public GeoCoordinate.NetStandard2.GeoCoordinate GetGeoCoordinate => new(Latitude, Longitude);
     }
 
     class Time
@@ -80,7 +79,9 @@ namespace QuestBot
         public string Text { get; set; } = null;
         public string Image { get; set; } = null;
         public string Sticker { get; set; } = null;
+        public string AnimatedSticker { get; set; } = null;
         public string Voice { get; set; } = null;
+        public string Audio { get; set; } = null;
         public Location Geotag { get; set; } = null;
         public string Video { get; set; } = null;
         public Quiz Quiz { get; set; } = null;
@@ -146,9 +147,19 @@ namespace QuestBot
                     return TgMessageType.Sticker;
                 }
 
+                if (AnimatedSticker != null)
+                {
+                    return TgMessageType.AnimatedSticker;
+                }
+
                 if (Voice != null)
                 {
                     return TgMessageType.Voice;
+                }
+
+                if (Audio != null)
+                {
+                    return TgMessageType.Audio;
                 }
 
                 if (Video != null)

@@ -3,5 +3,6 @@
    "bdayChatId": 0,
    "adminChatIds": [
       1
-   ]
+   ],
+   "observerChatIds": []
 }

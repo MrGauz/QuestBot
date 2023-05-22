@@ -15,7 +15,9 @@
         "text": "text or caption goes in here in HTML format",
         "image": "absolute path to image",
         "sticker": "absolute path to webp",
+        "animatedSticker": "animated sticker's file ID",
         "voice": "absolute path to ogg",
+        "audio": "URL of mp3 file",
         "keyboard": [
             "button caption #1",
             "button caption #2"
@@ -36,25 +38,6 @@
         }
     },
     {
-        "name": "scheduled_message_sequence_1",
-        "sendAt": {
-            "hours": 10,
-            "minutes": 42
-        },
-        "nextAfter": 120,
-        "nextName": "scheduled_message_sequence_2",
-        "text": "This is the first of many messages to come"
-    },
-    {
-        "name": "scheduled_message_sequence_2",
-        "text": "I was scheduled 2 minutes after scheduled_message_sequence_1"
-    },
-    {
-        "name": "codeword_test",
-        "sendOnText": "пидор",
-        "text": "нет ты"
-    },
-    {
         "name": "new_message_template",
         "sendAt": {
             "hours": 0,
@@ -70,7 +53,9 @@
         "text": "",
         "image": "",
         "sticker": "",
+        "animatedSticker": "",
         "voice": "",
+        "audio": "",
         "keyboard": [
             "",
             ""

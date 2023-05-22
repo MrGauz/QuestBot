@@ -8,6 +8,7 @@ using Telegram.Bot.Exceptions;
 using Telegram.Bot.Extensions.Polling;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
+using Telegram.Bot.Types.InputFiles;
 using Telegram.Bot.Types.ReplyMarkups;
 
 namespace QuestBot
@@ -15,6 +16,18 @@ namespace QuestBot
     class Bot
     {
         private static ITelegramBotClient _botClient;
+
+        private static readonly ReplyKeyboardMarkup ReplyKeyboardForAdmins = new(
+            new[]
+            {
+                new KeyboardButton[] { "квест ua_artist", "квест alice_cooper", "квест burp" },
+                new KeyboardButton[] { "квест memes", "квест motocycles", "квест welldone" },
+                new KeyboardButton[] { "муз квиз раунд 1", "муз квиз раунд 2", "муз квиз раунд 3" },
+                new KeyboardButton[] { "Как пользоваться админкой?" },
+            })
+        {
+            ResizeKeyboard = true
+        };
 
         public static void Initialize()
         {
@@ -37,23 +50,10 @@ namespace QuestBot
             {
                 SendAdminUsage(admin);
 
-                // Send keyboard
-                var replyKeyboardMarkup = new ReplyKeyboardMarkup(
-                    new KeyboardButton[][]
-                    {
-                        new KeyboardButton[] { "квест ua_artist", "квест alice_cooper", "квест burp" },
-                        new KeyboardButton[] { "квест memes", "квест motocycles", "квест welldone" },
-                        new KeyboardButton[] { "муз квиз раунд 1", "муз квиз раунд 2", "муз квиз раунд 3" },
-                        new KeyboardButton[] { "Как пользоваться админкой?" },
-                    })
-                {
-                    ResizeKeyboard = true
-                };
-
                 _botClient.SendTextMessageAsync(
                     chatId: admin,
                     text: "Здарова, админ нашей залупы",
-                    replyMarkup: replyKeyboardMarkup);
+                    replyMarkup: ReplyKeyboardForAdmins);
             }
         }
 
@@ -64,6 +64,7 @@ Usage:
   <code>/send message_name_as_in_json</code>
   <code>/forward text you want to send to Eugene</code>
   <code>/progress 42</code>
+  <code>/keyboard</code> - send the keyboard again
 
 Keyboard:
   First 2 rows for increasing side-side quests completeness
@@ -119,6 +120,15 @@ Keyboard:
                     }
 
                     break;
+                case TgMessageType.AnimatedSticker:
+                    await _botClient.SendChatActionAsync(to, ChatAction.Typing);
+                    var sticker = new InputOnlineFile(message.AnimatedSticker);
+                    sentMessage = await _botClient.SendStickerAsync(
+                        chatId: to,
+                        sticker: sticker,
+                        replyMarkup: message.KeyboardMarkup
+                    );
+                    break;
                 case TgMessageType.Voice:
                     await _botClient.SendChatActionAsync(to, ChatAction.RecordVoice);
                     using (var stream = System.IO.File.OpenRead(message.Voice))
@@ -130,6 +140,14 @@ Keyboard:
                         );
                     }
 
+                    break;
+                case TgMessageType.Audio:
+                    await _botClient.SendChatActionAsync(to, ChatAction.RecordVoice);
+                    sentMessage = await _botClient.SendAudioAsync(
+                        chatId: to,
+                        audio: message.Audio,
+                        replyMarkup: message.KeyboardMarkup
+                    );
                     break;
                 case TgMessageType.Video:
                     await _botClient.SendChatActionAsync(to, ChatAction.UploadVideo);
@@ -192,10 +210,10 @@ Keyboard:
             // Wiretap a.k.a. "Babysitting"
             if (to == Config.BdayChatId)
             {
-                foreach (var admin in Config.AdminChatIds)
+                foreach (var recipient in Config.AdminChatIds.Concat(Config.ObserversChatIds))
                 {
                     await _botClient.ForwardMessageAsync(
-                        chatId: admin,
+                        chatId: recipient,
                         fromChatId: sentMessage.Chat.Id,
                         messageId: sentMessage.MessageId
                     );
@@ -270,7 +288,7 @@ Keyboard:
             // Another wiretap
             if (message.From.Id == Config.BdayChatId)
             {
-                foreach (var admin in Config.AdminChatIds)
+                foreach (var admin in Config.AdminChatIds.Concat(Config.ObserversChatIds))
                 {
                     _botClient.ForwardMessageAsync(
                         chatId: admin,
@@ -305,17 +323,16 @@ Keyboard:
                 {
                     SendMessage(message.Text[9..]);
                 }
-                else if (message.Text.StartsWith("муз квиз раунд 1"))
+                else if (message.Text.StartsWith("/keyboard"))
                 {
-                    SendMessage(Quest.Messages.Single(m => m.Name == "quiz_1_welcome"));
+                    _botClient.SendTextMessageAsync(
+                        chatId: message.From.Id,
+                        text: "Вот:",
+                        replyMarkup: ReplyKeyboardForAdmins);
                 }
                 else if (message.Text.StartsWith("муз квиз раунд 2"))
                 {
                     SendMessage(Quest.Messages.Single(m => m.Name == "quiz_16_round_2_welcome"));
-                }
-                else if (message.Text.StartsWith("муз квиз раунд 3"))
-                {
-                    SendMessage(Quest.Messages.Single(m => m.Name == "quiz_37_round_3_welcome"));
                 }
                 else if (message.Text.StartsWith("Как пользоваться админкой?"))
                 {
