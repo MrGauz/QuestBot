@@ -16,7 +16,7 @@ namespace QuestBot
             Console.WriteLine($"{DateTime.Now:HH:mm:ss} - Bot is initialized...");
 
             // Add scheduled messages to queue
-            Thread.CurrentThread.CurrentCulture = new CultureInfo("de-DE");
+            Thread.CurrentThread.CurrentCulture = new CultureInfo(Config.Locale);
             var registry = new Registry();
             foreach (var message in Quest.Messages.Where(m => m.SendAt != null))
             {

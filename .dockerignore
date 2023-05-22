@@ -7,3 +7,4 @@ QuestBot/obj/
 *.md
 *.user
 .gitignore
+resources/.gitkeep

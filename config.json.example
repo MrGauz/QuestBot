@@ -1,0 +1,7 @@
+﻿{
+   "telegramBotToken": "YOUR_TELEGRAM_BOT_TOKEN",
+   "bdayChatId": 0,
+   "adminChatIds": [
+      1
+   ]
+}

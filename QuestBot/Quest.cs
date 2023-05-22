@@ -16,8 +16,10 @@ namespace QuestBot
             // Load messages from json
             var jsonString = File.ReadAllText("messages.json");
 
-            JsonSerializerOptions options = new();
-            options.PropertyNameCaseInsensitive = true;
+            JsonSerializerOptions options = new()
+            {
+                PropertyNameCaseInsensitive = true
+            };
             Messages = JsonSerializer.Deserialize<List<TgMessage>>(jsonString, options);
         }
     }

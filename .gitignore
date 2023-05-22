@@ -5,6 +5,8 @@
 
 # Secrets and personal
 resources/*
+config.json
+messages.json
 
 # Builds
 QuestBot/bin/

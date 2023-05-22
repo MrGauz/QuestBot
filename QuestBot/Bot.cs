@@ -16,19 +16,9 @@ namespace QuestBot
     {
         private static ITelegramBotClient _botClient;
 
-        // Admins' Telegram IDs
-        public static readonly long[] Admins =
-        {
-            1, // GAUZ_ID
-            2, // DANI_ID
-        };
-
-        // B-Day princess's Telegram ID
-        private const long EUGENE_ID = 0;
-
         public static void Initialize()
         {
-            _botClient = new TelegramBotClient("<token>");
+            _botClient = new TelegramBotClient(Config.TelegramBotToken);
 
             using var cancellationTokenSource = new CancellationTokenSource();
 
@@ -43,7 +33,7 @@ namespace QuestBot
         private static void GreetAdmins()
         {
             Console.WriteLine($"{DateTime.Now:HH:mm:ss} - Greeting admins...");
-            foreach (var admin in Admins)
+            foreach (var admin in Config.AdminChatIds)
             {
                 SendAdminUsage(admin);
 
@@ -84,9 +74,14 @@ Keyboard:
             SendMessage(usage, admin);
         }
 
-        public static async void SendMessage(TgMessage message, long to = EUGENE_ID, bool pin = false)
+        public static async void SendMessage(TgMessage message, long to = 0, bool pin = false)
         {
-            Message sentMessage = new();
+            if (to == 0)
+            {
+                to = Config.BdayChatId;
+            }
+
+            Message sentMessage;
 
             switch (message.Type)
             {
@@ -141,7 +136,7 @@ Keyboard:
                     using (var stream = System.IO.File.OpenRead(message.Video))
                     {
                         sentMessage = await _botClient.SendVideoAsync(
-                            chatId: EUGENE_ID,
+                            chatId: Config.BdayChatId,
                             video: stream,
                             caption: message.Text,
                             supportsStreaming: true,
@@ -190,14 +185,14 @@ Keyboard:
             // Pinning messages
             if (pin)
             {
-                await _botClient.UnpinAllChatMessages(EUGENE_ID);
-                await _botClient.PinChatMessageAsync(EUGENE_ID, sentMessage.MessageId, true);
+                await _botClient.UnpinAllChatMessages(Config.BdayChatId);
+                await _botClient.PinChatMessageAsync(Config.BdayChatId, sentMessage.MessageId, true);
             }
 
             // Wiretap a.k.a. "Babysitting"
-            if (to == EUGENE_ID)
+            if (to == Config.BdayChatId)
             {
-                foreach (var admin in Admins)
+                foreach (var admin in Config.AdminChatIds)
                 {
                     await _botClient.ForwardMessageAsync(
                         chatId: admin,
@@ -215,7 +210,7 @@ Keyboard:
             }
         }
 
-        public static void SendMessage(string message, long to = EUGENE_ID, bool pin = false)
+        public static void SendMessage(string message, long to = 0, bool pin = false)
         {
             TgMessage tgMessage = new()
             {
@@ -223,11 +218,6 @@ Keyboard:
                 Text = message
             };
             SendMessage(tgMessage, to, pin);
-        }
-
-        public static void SendMessageManually(string messageName)
-        {
-            SendMessage(Quest.Messages.Single(m => m.Name == messageName));
         }
 
         #endregion
@@ -278,9 +268,9 @@ Keyboard:
             if (message == null) return;
 
             // Another wiretap
-            if (message.From.Id == EUGENE_ID)
+            if (message.From.Id == Config.BdayChatId)
             {
-                foreach (var admin in Admins)
+                foreach (var admin in Config.AdminChatIds)
                 {
                     _botClient.ForwardMessageAsync(
                         chatId: admin,
@@ -305,7 +295,7 @@ Keyboard:
 
         private static void BotOnTextReceived(Message message)
         {
-            if (new List<long>(Admins).Contains(message.From.Id))
+            if (new List<long>(Config.AdminChatIds).Contains(message.From.Id))
             {
                 if (message.Text.StartsWith("/send"))
                 {
