@@ -4,5 +4,12 @@
    "adminChatIds": [
       1
    ],
-   "observerChatIds": []
+   "observerChatIds": [],
+   "smtp": {
+         "host": "leave empty if not needed",
+         "port": 587,
+         "user": "but dont remove this section",
+         "pass": "",
+         "from": ""
+      }
 }

@@ -63,6 +63,7 @@ namespace QuestBot
             _botClient.SendTextMessageAsync(
                 chatId: admin,
                 text: usage,
+                parseMode: ParseMode.Html,
                 replyMarkup: ReplyKeyboardForAdmins);
         }
 

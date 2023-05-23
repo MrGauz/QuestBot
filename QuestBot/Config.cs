@@ -4,12 +4,22 @@ using Newtonsoft.Json;
 
 namespace QuestBot;
 
+public class SmtpConfig
+{
+    public string Host { get; set; }
+    public int Port { get; set; }
+    public string Username { get; set; }
+    public string Password { get; set; }
+    public string From { get; set; }
+}
+
 public class Configs
 {
     public string TelegramBotToken { get; set; }
     public long BdayChatId { get; set; }
     public long[] AdminChatIds { get; set; }
     public long[] ObserversChatIds { get; set; }
+    public SmtpConfig Smtp { get; set; }
     public static string Locale => "de-DE";
 
     public static Configs Instance { get; private set; }
@@ -27,5 +37,6 @@ public static class Config
     public static long BdayChatId => Configs.Instance.BdayChatId;
     public static IEnumerable<long> AdminChatIds => Configs.Instance.AdminChatIds;
     public static IEnumerable<long> ObserversChatIds => Configs.Instance.ObserversChatIds;
+    public static SmtpConfig Smtp => Configs.Instance.Smtp;
     public static string Locale => Configs.Locale;
 }
