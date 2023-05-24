@@ -1,5 +1,7 @@
 # 🤖 QuestBot
 
+> 👷‍♂️ The project is under construction, a proper README will be added soon.
+
 A C#-based Telegram bot for interactive communication with a soulless machine.
 
 As is, it was used for creating a series of quizes for my best friend as a challenge for his Birthday. However, since it can send messages based on pre-defined triggers, it can be used for other human-machine communicative purposes.
