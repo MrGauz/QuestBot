@@ -18,7 +18,7 @@ public class Configs
     public string TelegramBotToken { get; set; }
     public long BdayChatId { get; set; }
     public long[] AdminChatIds { get; set; }
-    public long[] ObserversChatIds { get; set; }
+    public long BroadcastChatId { get; set; }
     public SmtpConfig Smtp { get; set; }
     public static string Locale => "de-DE";
 
@@ -36,7 +36,7 @@ public static class Config
     public static string TelegramBotToken => Configs.Instance.TelegramBotToken;
     public static long BdayChatId => Configs.Instance.BdayChatId;
     public static IEnumerable<long> AdminChatIds => Configs.Instance.AdminChatIds;
-    public static IEnumerable<long> ObserversChatIds => Configs.Instance.ObserversChatIds;
+    public static long BroadcastChatId => Configs.Instance.BroadcastChatId;
     public static SmtpConfig Smtp => Configs.Instance.Smtp;
     public static string Locale => Configs.Locale;
 }

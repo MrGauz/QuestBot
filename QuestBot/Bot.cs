@@ -32,6 +32,7 @@ namespace QuestBot
         {
             _botClient = new TelegramBotClient(Config.TelegramBotToken);
 
+            // TODO: reuse the cancellation token source
             using var cancellationTokenSource = new CancellationTokenSource();
 
             GreetAdmins();
@@ -199,14 +200,11 @@ namespace QuestBot
             // Wiretap a.k.a. "Babysitting"
             if (to == Config.BdayChatId)
             {
-                foreach (var recipient in Config.AdminChatIds.Concat(Config.ObserversChatIds).ToArray())
-                {
-                    await _botClient.ForwardMessageAsync(
-                        chatId: recipient,
-                        fromChatId: sentMessage.Chat.Id,
-                        messageId: sentMessage.MessageId
-                    );
-                }
+                await _botClient.ForwardMessageAsync(
+                    chatId: Config.BroadcastChatId,
+                    fromChatId: sentMessage.Chat.Id,
+                    messageId: sentMessage.MessageId
+                );
             }
 
             // Sending message sequences
@@ -277,14 +275,11 @@ namespace QuestBot
             // Another wiretap
             if (message.From.Id == Config.BdayChatId)
             {
-                foreach (var admin in Config.AdminChatIds.Concat(Config.ObserversChatIds).ToArray())
-                {
-                    _botClient.ForwardMessageAsync(
-                        chatId: admin,
-                        fromChatId: message.Chat.Id,
-                        messageId: message.MessageId
-                    );
-                }
+                _botClient.ForwardMessageAsync(
+                    chatId: Config.BroadcastChatId,
+                    fromChatId: message.Chat.Id,
+                    messageId: message.MessageId
+                );
             }
 
             switch (message.Type)
@@ -361,14 +356,11 @@ namespace QuestBot
         {
             foreach (var message in Quest.Messages.Where(m => m.Quiz != null && m.Quiz.PollId == poll.Id))
             {
-                foreach (var admin in Config.AdminChatIds.Concat(Config.ObserversChatIds).ToArray())
-                {
-                    _botClient.SendTextMessageAsync(
-                        chatId: admin,
-                        text:
-                        $"Выбранный ответ на вопрос \"{message.Quiz.Question}\": {poll.Options.Single(o => o.VoterCount > 0).Text}",
-                        ParseMode.Html);
-                }
+                _botClient.SendTextMessageAsync(
+                    chatId: Config.BroadcastChatId,
+                    text:
+                    $"Выбранный ответ на вопрос \"{message.Quiz.Question}\": {poll.Options.Single(o => o.VoterCount > 0).Text}",
+                    ParseMode.Html);
 
                 SendMessage(Quest.Messages.Single(m => m.Name == message.Quiz.ReplyName));
             }

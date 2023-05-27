@@ -4,7 +4,7 @@
    "adminChatIds": [
       1
    ],
-   "observerChatIds": [],
+   "broadcastChatId": 0,
    "smtp": {
          "host": "leave empty if not needed",
          "port": 587,
