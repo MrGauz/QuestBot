@@ -2,5 +2,6 @@
 venv/
 *.json
 *.png
+*.mp3
 sanitize_comments.py
 random_bots.py
