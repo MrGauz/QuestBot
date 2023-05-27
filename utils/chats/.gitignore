@@ -5,3 +5,4 @@ venv/
 *.mp3
 sanitize_comments.py
 random_bots.py
+get_commits.py

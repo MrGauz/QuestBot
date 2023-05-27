@@ -1,0 +1,9 @@
+﻿.idea/
+venv/
+*/.gitkeep
+.gitignore
+*/*.example
+sent*
+get_commits.py
+random_bots.py
+sanitize_comments.py

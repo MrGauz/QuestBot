@@ -8,3 +8,4 @@ QuestBot/obj/
 *.user
 .gitignore
 resources/.gitkeep
+utils/*.sh
