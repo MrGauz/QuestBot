@@ -1,5 +1,6 @@
 .idea/
 venv/
 *.json
-sanitize_comments.py
 *.png
+sanitize_comments.py
+random_bots.py

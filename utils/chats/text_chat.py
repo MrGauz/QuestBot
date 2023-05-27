@@ -8,7 +8,7 @@ import requests
 def main():
     """Sends text messages to a Telegram group with a pseudo-random delay.
     Requires text_messages.json, bots.json and a GROUP_ID."""
-    GROUP_ID = -1001674866129  # todo
+    GROUP_ID = 0
     text_messages_path = 'text_messages.json'
     bots_path = 'bots.json'
 

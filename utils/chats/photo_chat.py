@@ -9,7 +9,7 @@ import requests
 def main():
     """Sends PNG pictures from a specified folder to a Telegram group every 1-3 minutes.
     Requires bots.json, a folder full of photos/memes and a GROUP_ID."""
-    GROUP_ID = -1001674866129  # todo
+    GROUP_ID = 0
     png_pictures_path = 'images'
     bots_path = 'bots.json'
     sent_images_path = 'sent_images.json'
