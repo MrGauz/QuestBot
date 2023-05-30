@@ -35,7 +35,13 @@
             ],
             "correctOptionId": 0,
             "replyName": "reply_message_name"
-        }
+        },
+        "notifyNpc": [
+            {
+                "npcCodename": "same as in config.json",
+                "messageName": "message sent to npc"
+            }        
+        ]
     },
     {
         "name": "new_message_template",

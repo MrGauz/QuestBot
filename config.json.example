@@ -12,5 +12,11 @@
          "pass": "",
          "from": ""
    },
-   "openAiApiKey": ""
+   "openAiApiKey": "",
+   "npc": [
+         {
+            "chatId": 0,
+            "codename": "assistant"
+         }
+   ]
 }

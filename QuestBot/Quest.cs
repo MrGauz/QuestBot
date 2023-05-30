@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Serilog;
 using Telegram.Bot.Types.ReplyMarkups;
 
 namespace QuestBot
@@ -67,6 +68,12 @@ namespace QuestBot
         [JsonIgnore] public string PollId { get; set; } = null;
     }
 
+    class NpcMessage
+    {
+        public string NpcCodename { get; set; }
+        public string MessageName { get; set; }
+    }
+
     class TgMessage
     {
         public string Name { get; set; }
@@ -86,6 +93,7 @@ namespace QuestBot
         public Quiz Quiz { get; set; } = null;
         public string[] Keyboard { get; set; } = null;
         public Button[] Buttons { get; set; } = null;
+        public NpcMessage[] NotifyNpc { get; set; } = null;
 
         [JsonIgnore]
         public InlineKeyboardMarkup KeyboardMarkup
@@ -183,9 +191,35 @@ namespace QuestBot
         [JsonIgnore]
         public TgMessage NextMessage
         {
+            get { return NextName == null ? null : Quest.Messages.Single(m => m.Name == NextName); }
+        }
+
+        [JsonIgnore]
+        public Dictionary<long, TgMessage> NpcMessages
+        {
             get
             {
-                return NextName == null ? null : Quest.Messages.Single(m => m.Name == NextName);
+                var messages = new Dictionary<long, TgMessage>();
+                foreach (var npcMessage in NotifyNpc)
+                {
+                    if (npcMessage.NpcCodename == null || npcMessage.MessageName == null)
+                    {
+                        Log.Warning("Incomplete NPC message: {MessageName}", Name);
+                        continue;
+                    }
+
+                    if (!Config.Npc.Any(n => n.Codename == npcMessage.NpcCodename))
+                    {
+                        Log.Warning("NPC '{Codename}' not found in message {MessageName}", npcMessage.NpcCodename,
+                            Name);
+                        continue;
+                    }
+
+                    var npcId = Config.Npc.Single(n => n.Codename == npcMessage.NpcCodename).ChatId;
+                    messages.Add(npcId, Quest.Messages.Single(m => m.Name == npcMessage.MessageName));
+                }
+
+                return messages;
             }
         }
     }

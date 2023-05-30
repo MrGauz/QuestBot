@@ -55,12 +55,10 @@ namespace QuestBot
 
         private static void SendAdminUsage(long admin)
         {
-            const string usage = @"
-Использование:
-  <code>/send ID сообщения как в JSON</code>
-  <code>/forward текст для отправки Лере</code>
-  <code>/keyboard</code> - показать клавиатуру с кнопками
-                ";
+            const string usage = "Использование:\n" +
+                                 "<code>/send ID сообщения как в JSON</code>\n" +
+                                 "<code>/forward текст для отправки Лере</code>\n" +
+                                 "<code>/keyboard</code> - показать клавиатуру с кнопками";
 
             _botClient.SendTextMessageAsync(
                 chatId: admin,
@@ -207,6 +205,15 @@ namespace QuestBot
                 );
             }
 
+            // Sending messages to NPCs
+            if (message.NotifyNpc?.Length > 0)
+            {
+                foreach (var npcMessage in message.NpcMessages)
+                {
+                    SendMessage(npcMessage.Value, npcMessage.Key);
+                }
+            }
+
             // Sending message sequences
             if (message.NextAfter != null)
             {
@@ -333,6 +340,8 @@ namespace QuestBot
 
         private static void BotOnLocationReceived(Message message)
         {
+            if (message.From.Id != Config.BdayChatId) return;
+
             var sentCoordinate =
                 new GeoCoordinate.NetStandard2.GeoCoordinate(message.Location.Latitude, message.Location.Longitude);
             foreach (var tgMessage in Quest.Messages.Where(m => m.SendAtLocation != null))
