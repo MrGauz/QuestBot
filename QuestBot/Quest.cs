@@ -101,7 +101,7 @@ namespace QuestBot
                 for (var i = 0; i < Keyboard.Length; i++)
                 {
                     var callbackData = $"{Name}_{i}";
-                    buttons.Add(new InlineKeyboardButton[]
+                    buttons.Add(new[]
                         { InlineKeyboardButton.WithCallbackData(Keyboard[i], callbackData) });
                 }
 
@@ -119,7 +119,7 @@ namespace QuestBot
                     return null;
                 }
 
-                var buttons = Buttons.Select(button => new InlineKeyboardButton[]
+                var buttons = Buttons.Select(button => new[]
                     { InlineKeyboardButton.WithCallbackData(button.Text, button.CallbackData) }).ToList();
 
                 return new InlineKeyboardMarkup(buttons);
