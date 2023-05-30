@@ -3,6 +3,7 @@ using System.IO;
 using System.Net;
 using System.Net.Mail;
 using System.Text;
+using Serilog;
 
 namespace QuestBot;
 
@@ -14,7 +15,7 @@ public static class Utils
         if (Config.Smtp == null || string.IsNullOrEmpty(Config.Smtp.Host) ||
             string.IsNullOrEmpty(Config.Smtp.Username) || string.IsNullOrEmpty(Config.Smtp.Password))
         {
-            Console.WriteLine("SMTP config is not set, skipping calendar invite");
+            Log.Warning("SMTP config is not set, skipping calendar invite");
             return;
         }
 

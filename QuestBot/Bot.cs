@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Serilog;
 using Telegram.Bot;
 using Telegram.Bot.Exceptions;
 using Telegram.Bot.Extensions.Polling;
@@ -45,7 +46,7 @@ namespace QuestBot
 
         private static void GreetAdmins()
         {
-            Console.WriteLine($"{DateTime.Now:HH:mm:ss} - Greeting admins...");
+            Log.Information("Greeting admins...");
             foreach (var admin in Config.AdminChatIds)
             {
                 SendAdminUsage(admin);
@@ -183,12 +184,11 @@ namespace QuestBot
                     );
                     break;
                 default:
-                    Console.WriteLine(
-                        $"{DateTime.Now:HH:mm:ss} - ERROR - Trying to send unknown message type: {message.Type}");
+                    Log.Error("Trying to send unknown message type: {Type}", message.Type);
                     return;
             }
 
-            Console.WriteLine($"{DateTime.Now:HH:mm:ss} - Sent \"{message.Name}\"");
+            Log.Information("Sent \"{MessageName}\"", message.Name);
 
             // Pinning messages
             if (pin)
@@ -239,7 +239,7 @@ namespace QuestBot
                 _ => exception.ToString()
             };
 
-            Console.WriteLine($"{DateTime.Now:HH:mm:ss} - {errorMessage}");
+            Log.Error("{Message}", errorMessage);
             return Task.CompletedTask;
         }
 
@@ -340,7 +340,7 @@ namespace QuestBot
                 var distanceInMeters = (int)sentCoordinate.GetDistanceTo(tgMessage.SendAtLocation.GetGeoCoordinate);
                 if (distanceInMeters < 100)
                 {
-                    Console.WriteLine($"{DateTime.Now:HH:mm:ss} - Location proximity {distanceInMeters} meters");
+                    Log.Information("Location proximity {Meters} meters", distanceInMeters);
                     SendMessage(tgMessage);
                     return;
                 }

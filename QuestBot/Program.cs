@@ -4,18 +4,23 @@ using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Serilog;
 
 namespace QuestBot
 {
     class Program
     {
-        // TODO: add logging
         static async Task Main(string[] args)
         {
+            // Initialize logs
+            Log.Logger = new LoggerConfiguration()
+                .WriteTo.Console()
+                .CreateLogger();
+
             // Fire everything up
-            Console.WriteLine($"{DateTime.Now:HH:mm:ss} - Loaded {Quest.Messages.Count} messages...");
+            Log.Information("Loaded {Count} messages...", Quest.Messages.Count);
             Bot.Initialize();
-            Console.WriteLine($"{DateTime.Now:HH:mm:ss} - Bot is initialized...");
+            Log.Information("Bot is initialized...");
 
             // Add scheduled messages to queue
             Thread.CurrentThread.CurrentCulture = new CultureInfo(Config.Locale);
@@ -27,15 +32,14 @@ namespace QuestBot
             }
 
             JobManager.Initialize(registry);
-            Console.WriteLine(
-                $"{DateTime.Now:HH:mm:ss} - Scheduled {Quest.Messages.Count(m => m.SendAt != null)} messages...");
+            Log.Information("Scheduled {Count} messages...", Quest.Messages.Count(m => m.SendAt != null));
 
             // Manual break
             Console.WriteLine("Press Ctrl+C to stop the bot.");
             var cancellationTokenSource = new CancellationTokenSource();
             Console.CancelKeyPress += (sender, eventArgs) =>
             {
-                Console.WriteLine("Stopping the bot...");
+                Log.Information("Stopping the bot...");
                 cancellationTokenSource.Cancel();
                 eventArgs.Cancel = true;
                 JobManager.Stop();
