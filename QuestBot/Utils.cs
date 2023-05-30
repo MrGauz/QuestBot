@@ -3,6 +3,8 @@ using System.IO;
 using System.Net;
 using System.Net.Mail;
 using System.Text;
+using System.Threading.Tasks;
+using OpenAI_API;
 using Serilog;
 
 namespace QuestBot;
@@ -71,5 +73,14 @@ public static class Utils
             client.EnableSsl = true;
             client.Send(message);
         }
+    }
+
+    public static async Task<string> RunChatGptPrompt(string systemMessage, string userInput)
+    {
+        var api = new OpenAIAPI(Config.OpenAiApiKey);
+        var chat = api.Chat.CreateConversation();
+        chat.AppendSystemMessage(systemMessage);
+        chat.AppendUserInput(userInput);
+        return await chat.GetResponseFromChatbotAsync();
     }
 }

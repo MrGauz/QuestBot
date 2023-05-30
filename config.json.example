@@ -11,5 +11,6 @@
          "user": "but dont remove this section",
          "pass": "",
          "from": ""
-      }
+   },
+   "openAiApiKey": ""
 }

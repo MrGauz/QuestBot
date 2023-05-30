@@ -20,6 +20,7 @@ public class Configs
     public long[] AdminChatIds { get; set; }
     public long BroadcastChatId { get; set; }
     public SmtpConfig Smtp { get; set; }
+    public string OpenAiApiKey { get; set; } = null;
     public static string Locale => "de-DE";
 
     public static Configs Instance { get; private set; }
@@ -38,5 +39,6 @@ public static class Config
     public static IEnumerable<long> AdminChatIds => Configs.Instance.AdminChatIds;
     public static long BroadcastChatId => Configs.Instance.BroadcastChatId;
     public static SmtpConfig Smtp => Configs.Instance.Smtp;
+    public static string OpenAiApiKey => Configs.Instance.OpenAiApiKey;
     public static string Locale => Configs.Locale;
 }
