@@ -77,6 +77,12 @@ public static class Utils
 
     public static async Task<string> RunChatGptPrompt(string systemMessage, string userInput)
     {
+        if (Config.OpenAiApiKey == null)
+        {
+            Log.Warning("OpenAI API key is not set, skipping ChatGPT prompting");
+            return "";
+        }
+
         var api = new OpenAIAPI(Config.OpenAiApiKey);
         var chat = api.Chat.CreateConversation();
         chat.AppendSystemMessage(systemMessage);
